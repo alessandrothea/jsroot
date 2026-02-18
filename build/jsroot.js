@@ -1,4 +1,4 @@
-// https://root.cern/js/ v7.10.2
+// https://root.cern/js/ v7.10.3
 (function (global, factory) {
 typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
 typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -10,11 +10,11 @@ var _documentCurrentScript = typeof document !== 'undefined' ? document.currentS
 
 /** @summary version id
   * @desc For the JSROOT release the string in format 'major.minor.patch' like '7.0.0' */
-const version_id = '7.10.99',
+const version_id = '7.10.x',
 
 /** @summary version date
   * @desc Release date in format day/month/year like '14/04/2022' */
-version_date = '18/02/2026',
+version_date = '17/02/2026',
 
 /** @summary version id and date
   * @desc Produced by concatenation of {@link version_id} and {@link version_date}
@@ -95263,6 +95263,12 @@ class THistPainter extends ObjectPainter {
       return cntr;
    }
 
+   /** @summary Reset contour object
+    * @private */
+   resetContour() {
+      this.#contour = undefined;
+   }
+
    /** @summary Return Z-scale ranges to create contour */
    #getContourRanges(main, fp) {
       const o = this.getOptions(),
@@ -95843,7 +95849,7 @@ class THistPainter extends ObjectPainter {
          this.maxbin = this.minbin = 0;
 
       // force recalculation of z levels
-      this.#contour = undefined;
+      this.resetContour();
 
       if (args.zrange)
          Object.assign(res, this.#getContourRanges(this.getMainPainter(), this.getFramePainter()));
@@ -104522,6 +104528,9 @@ class TH3Painter extends THistPainter {
 
       const histo = this.getHisto(),
             fp = this.getFramePainter();
+
+      // ensure proper colors
+      this.resetContour();
 
       let use_lambert = false,
           use_helper = false, use_colors = false, use_opacity = 1, exclude_content = -1,
@@ -127106,6 +127115,7 @@ async function treeProcess(tree, selector, args) {
          case 'TLeafS': datakind = leaf.fIsUnsigned ? kUShort : kShort; break;
          case 'TLeafI': datakind = leaf.fIsUnsigned ? kUInt : kInt; break;
          case 'TLeafL': datakind = leaf.fIsUnsigned ? kULong64 : kLong64; break;
+         case 'TLeafG': datakind = leaf.fIsUnsigned ? kULong : kLong; break;
          case 'TLeafC': datakind = kTString; break;
          default: return null;
       }
